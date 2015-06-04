@@ -23,7 +23,7 @@ public class TestingWS extends Activity {
 		/* Use BASE_ADDRESS dedicated for your group, 
 		 * change 101 to you group number
 		 */
-        HeatingSystem.BASE_ADDRESS = "http://wwwis.win.tue.nl/2id40-ws/100";
+        HeatingSystem.BASE_ADDRESS = "http://wwwis.win.tue.nl/2id40-ws/26";
         HeatingSystem.WEEK_PROGRAM_ADDRESS = HeatingSystem.BASE_ADDRESS + "/weekProgram";
 
         getdata = (Button)findViewById(R.id.getdata);
