@@ -18,13 +18,12 @@
         android:layout_centerHorizontal="true" />
 
     <TextView
-        android:layout_width="100dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:id="@+id/DisplayTemp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="95dp"
         android:textSize="75dp"
         android:gravity="center"
-        android:layout_centerVertical="true"
         android:text="21"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />

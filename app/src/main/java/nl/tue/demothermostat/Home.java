@@ -7,6 +7,9 @@ import android.view.MenuItem;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import org.thermostatapp.util.HeatingSystem;
+import org.thermostatapp.util.WeekProgram;
+
 
 public class Home extends Activity {
     SeekBar slider;
@@ -14,15 +17,36 @@ public class Home extends Activity {
     int displayTemp=210;
     double currentTemp = displayTemp/10.0;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        // init adresses
+        HeatingSystem.BASE_ADDRESS = "http://wwwis.win.tue.nl/2id40-ws/26";
+        HeatingSystem.WEEK_PROGRAM_ADDRESS = HeatingSystem.BASE_ADDRESS + "/weekProgram";
+
+        // get temp
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    System.out.println("BASE ADDRESS "+HeatingSystem.BASE_ADDRESS+"\n"+
+                            		"currentTemperature "+HeatingSystem.get("currentTemperature")
+                    );
+                    currentTemp= Double.parseDouble((HeatingSystem.get("currentTemperature")));
+                    displayTemp=(int)(10.0*currentTemp);
+                } catch (Exception e) {
+                    System.err.println("Error from getdata "+e);
+                }
+            }
+        }).start();
+
         //init the elements
         slider = (SeekBar)findViewById(R.id.seekBar2);
         display = (TextView)findViewById(R.id.DisplayTemp);
-        display.setText(String.valueOf(currentTemp));
+        display.setText(String.valueOf(currentTemp+ " \u2103"));
         slider.setProgress(displayTemp);
 
         // couple the slider to the display
@@ -30,7 +54,19 @@ public class Home extends Activity {
             @Override
             public void onProgressChanged(SeekBar slider, int progress, boolean fromUser) {
                 currentTemp = progress / 10.0;
-                display.setText(String.valueOf(currentTemp));
+                display.setText(String.valueOf(currentTemp+ " \u2103"));
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+							/* test*/
+                            HeatingSystem.put("currentTemperature", String.valueOf(currentTemp));
+                        } catch (Exception e) {
+                            System.err.println("Error from getdata "+e);
+                        }
+                    }
+                }).start();
             }
 
             @Override
