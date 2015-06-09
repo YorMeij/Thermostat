@@ -49,6 +49,8 @@ public class Home extends Activity {
         display.setText(String.valueOf(currentTemp+ " \u2103"));
         slider.setProgress(displayTemp);
 
+
+
         // couple the slider to the display
         slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
