@@ -10,10 +10,14 @@ import android.widget.TextView;
 import org.thermostatapp.util.HeatingSystem;
 import org.thermostatapp.util.WeekProgram;
 
+import java.net.ConnectException;
+
 
 public class Home extends Activity {
     SeekBar slider;
     TextView display;
+    TextView status;
+    String time; //"HH:MM"
     int displayTemp=210;
     double currentTemp = displayTemp/10.0;
 
@@ -48,6 +52,8 @@ public class Home extends Activity {
         display = (TextView)findViewById(R.id.DisplayTemp);
         display.setText(String.valueOf(currentTemp+ " \u2103"));
         slider.setProgress(displayTemp);
+        status = (TextView)findViewById(R.id.status);
+
 
 
 
@@ -56,32 +62,108 @@ public class Home extends Activity {
             @Override
             public void onProgressChanged(SeekBar slider, int progress, boolean fromUser) {
                 currentTemp = progress / 10.0;
-                display.setText(String.valueOf(currentTemp+ " \u2103"));
+                display.setText(String.valueOf(currentTemp + " \u2103"));
 
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-							/* test*/
                             HeatingSystem.put("currentTemperature", String.valueOf(currentTemp));
                         } catch (Exception e) {
-                            System.err.println("Error from getdata "+e);
+                            System.err.println("Error from getdata " + e);
                         }
                     }
                 }).start();
+
+
+
+
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar slider) {
-
+                // todo: kill all treads to prevent errors
             }
 
             @Override
-            public void onStopTrackingTouch (SeekBar slider){
+            public void onStopTrackingTouch(SeekBar slider) {
+                new Thread(new Runnable() {
+                    double current = 0.0;
+                    double target = currentTemp;
+                    boolean b = false;
+                    @Override
+                    public void run() {
 
+                        while (true) {
+
+                            try {
+                                current = Double.valueOf(HeatingSystem.get("currentTemperature"));
+                            } catch (Exception e) {
+                                System.err.println("Error from getdata " + e);
+                            }
+
+                            status.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    System.out.println("t = " + target);
+                                    System.out.println("c = " + current);
+                                    if (target < current) {
+                                        status.setText(getString(R.string.cooling));
+                                    } else if (current < target) {
+                                        status.setText(getString(R.string.heating));
+                                    } else {
+                                        status.setText("");
+                                        b = true;
+                                    }
+                                }
+                            });
+
+                            if(b==true){
+                                break;
+                            }
+
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }).start();
             }
         });
 
+        // timetracker
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        time = HeatingSystem.get("time");
+
+
+                    } catch (Exception e) {
+                        System.err.println("Error from getdata " + e);
+                    }
+                    System.out.println("time = " + time);
+                    if (time.equals("23:59")) {
+                        //update all
+                        displayTemp = 210;
+                        currentTemp = displayTemp / 10.0;
+                        slider.setProgress(displayTemp);
+                        status.setText("");
+                    }
+
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+            }
+        }).start();
 
 
     }

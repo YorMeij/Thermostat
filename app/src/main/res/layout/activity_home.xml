@@ -18,14 +18,26 @@
         android:layout_centerHorizontal="true" />
 
     <TextView
-        android:layout_width="200dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:id="@+id/DisplayTemp"
-        android:layout_marginTop="95dp"
+        android:layout_marginTop="135dp"
         android:textSize="75dp"
         android:gravity="center"
-        android:text="21"
+        android:text="21.0 C"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Stable"
+        android:gravity="center"
+        android:textSize="25dp"
+        android:id="@+id/status"
+        android:layout_alignBottom="@+id/DisplayTemp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="90dp" />
 
 </RelativeLayout>
