@@ -20,12 +20,16 @@ public class Home extends Activity {
     String time; //"HH:MM"
     int displayTemp=210;
     double currentTemp = displayTemp/10.0;
+    Thread updateDisplay ;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        //init common threads
+        initThreads();
 
         // init adresses
         HeatingSystem.BASE_ADDRESS = "http://wwwis.win.tue.nl/2id40-ws/26";
@@ -55,86 +59,8 @@ public class Home extends Activity {
         status = (TextView)findViewById(R.id.status);
 
 
-
-
-        // couple the slider to the display
-        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar slider, int progress, boolean fromUser) {
-                currentTemp = progress / 10.0;
-                display.setText(String.valueOf(currentTemp + " \u2103"));
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            HeatingSystem.put("currentTemperature", String.valueOf(currentTemp));
-                        } catch (Exception e) {
-                            System.err.println("Error from getdata " + e);
-                        }
-                    }
-                }).start();
-
-
-
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar slider) {
-                // todo: kill all treads to prevent errors
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar slider) {
-                new Thread(new Runnable() {
-                    double current = 0.0;
-                    double target = currentTemp;
-                    boolean b = false;
-                    @Override
-                    public void run() {
-
-                        while (true) {
-
-                            try {
-                                current = Double.valueOf(HeatingSystem.get("currentTemperature"));
-                            } catch (Exception e) {
-                                System.err.println("Error from getdata " + e);
-                            }
-
-                            status.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    System.out.println("t = " + target);
-                                    System.out.println("c = " + current);
-                                    if (target < current) {
-                                        status.setText(getString(R.string.cooling));
-                                    } else if (current < target) {
-                                        status.setText(getString(R.string.heating));
-                                    } else {
-                                        status.setText("");
-                                        b = true;
-                                    }
-                                }
-                            });
-
-                            if(b==true){
-                                break;
-                            }
-
-                            try {
-                                Thread.sleep(500);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }).start();
-            }
-        });
-
-        // timetracker
-        new Thread(new Runnable() {
+        //  init timetracker
+        Thread timetracker = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true) {
@@ -151,9 +77,14 @@ public class Home extends Activity {
                         displayTemp = 210;
                         currentTemp = displayTemp / 10.0;
                         slider.setProgress(displayTemp);
-                        status.setText("");
-                    }
 
+                        status.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                status.setText("");
+                            }
+                        });
+                    }
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -163,10 +94,51 @@ public class Home extends Activity {
                 }
 
             }
-        }).start();
+        });
+
+        //start timetracker
+        timetracker.start();
 
 
-    }
+        // couple the slider to the display
+        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar slider, int progress, boolean fromUser) {
+
+                // get temperature from seekbar
+                currentTemp = progress / 10.0;
+                display.setText(String.valueOf(currentTemp + " \u2103"));
+
+                //set temperature in db
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            HeatingSystem.put("currentTemperature", String.valueOf(currentTemp));
+                        } catch (Exception e) {
+                            System.err.println("Error from getdata " + e);
+                        }
+                    }
+                }).start();
+
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar slider) {
+                // todo: kill all treads to prevent errors
+                if(updateDisplay.isAlive()){updateDisplay.interrupt();}
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar slider) {
+                updateDisplay.start();
+            }
+        });
+        }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -188,5 +160,51 @@ public class Home extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void initThreads(){
+            updateDisplay = new Thread(new Runnable() {
+                double current = 0.0;
+                double target = currentTemp;
+                boolean b = false;
+
+                @Override
+                public void run() {
+                    while (true) {
+                        try {
+                            current = Double.valueOf(HeatingSystem.get("currentTemperature"));
+                        } catch (Exception e) {
+                            System.err.println("Error from getdata " + e);
+                        }
+
+                        status.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                System.out.println("t = " + target);
+                                System.out.println("c = " + current);
+                                if (target < current) {
+                                    status.setText(getString(R.string.cooling));
+                                } else if (current < target) {
+                                    status.setText(getString(R.string.heating));
+                                } else {
+                                    status.setText("");
+                                    b = true;
+                                }
+                            }
+                        });
+
+                        if (b == true) {
+                            break;
+                        }
+
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+
     }
 }

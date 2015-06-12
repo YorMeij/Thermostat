@@ -8,14 +8,14 @@
 
 
     <SeekBar
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/seekBar2"
         android:indeterminate="false"
         android:max="300"
-        android:layout_marginBottom="100dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:rotation="270"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/DisplayTemp" />
 
     <TextView
         android:layout_width="300dp"
@@ -32,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Stable"
+        android:text=""
         android:gravity="center"
         android:textSize="25dp"
         android:id="@+id/status"
