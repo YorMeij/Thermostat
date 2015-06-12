@@ -10,14 +10,10 @@ import android.widget.TextView;
 import org.thermostatapp.util.HeatingSystem;
 import org.thermostatapp.util.WeekProgram;
 
-import java.net.ConnectException;
-
 
 public class Home extends Activity {
     SeekBar slider;
     TextView display;
-    TextView status;
-    String time; //"HH:MM"
     int displayTemp=210;
     double currentTemp = displayTemp/10.0;
     Thread updateDisplay ;
@@ -56,8 +52,6 @@ public class Home extends Activity {
         display = (TextView)findViewById(R.id.DisplayTemp);
         display.setText(String.valueOf(currentTemp+ " \u2103"));
         slider.setProgress(displayTemp);
-        status = (TextView)findViewById(R.id.status);
-
 
         //  init timetracker
         Thread timetracker = new Thread(new Runnable() {
@@ -108,25 +102,30 @@ public class Home extends Activity {
 
                 // get temperature from seekbar
                 currentTemp = progress / 10.0;
-                display.setText(String.valueOf(currentTemp + " \u2103"));
+                display.setText(String.valueOf(currentTemp+ " \u2103"));
 
                 //set temperature in db
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
+							/* test*/
                             HeatingSystem.put("currentTemperature", String.valueOf(currentTemp));
                         } catch (Exception e) {
-                            System.err.println("Error from getdata " + e);
+                            System.err.println("Error from getdata "+e);
                         }
                     }
                 }).start();
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> parent of ee56bf7... Got the reset working
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar slider) {
+<<<<<<< HEAD
                 // todo: kill all treads to prevent errors
                 if(updateDisplay.isAlive()){updateDisplay.interrupt();}
             }
@@ -137,6 +136,17 @@ public class Home extends Activity {
             }
         });
         }
+=======
+
+            }
+
+            @Override
+            public void onStopTrackingTouch (SeekBar slider){
+
+            }
+        });
+
+>>>>>>> parent of ee56bf7... Got the reset working
 
 
 

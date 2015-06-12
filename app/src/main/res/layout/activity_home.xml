@@ -18,16 +18,17 @@
         android:layout_centerHorizontal="true" />
 
     <TextView
-        android:layout_width="300dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:id="@+id/DisplayTemp"
-        android:layout_marginTop="135dp"
+        android:layout_marginTop="95dp"
         android:textSize="75dp"
         android:gravity="center"
-        android:text="21.0 C"
+        android:text="21"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
+<<<<<<< HEAD
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -40,4 +41,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="90dp" />
 
+=======
+>>>>>>> parent of ee56bf7... Got the reset working
 </RelativeLayout>
