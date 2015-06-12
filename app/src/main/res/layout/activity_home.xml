@@ -14,8 +14,8 @@
         android:indeterminate="false"
         android:max="300"
         android:rotation="270"
-        android:layout_centerVertical="true"
-        android:layout_toEndOf="@+id/DisplayTemp" />
+        android:layout_below="@+id/status"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="300dp"
